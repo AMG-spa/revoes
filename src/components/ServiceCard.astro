@@ -1,0 +1,93 @@
+---
+const { service, index } = Astro.props;
+---
+
+<article class="service-card" style={`--delay: ${index * 120}ms`}>
+  <img src={service.image} alt="" loading="lazy" />
+
+  <div class="service-body">
+    <h3>{service.title}</h3>
+    <p>{service.text}</p>
+
+    <a href={service.href} class="outline-button">
+  <span>{service.button}</span>
+  <span aria-hidden="true">→</span>
+</a>
+  </div>
+</article>
+
+<style>
+  .service-card {
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeUp 700ms ease var(--delay) forwards;
+    transition: transform 240ms ease, box-shadow 240ms ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.22);
+  }
+
+  img {
+    display: block;
+    width: calc(100% - 28px);
+    height: 244px;
+    margin: 14px auto 0;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .service-body {
+    padding: 13px 14px 26px;
+  }
+
+  h3 {
+    margin: 0;
+    white-space: pre-line;
+    font-size: 25px;
+    line-height: 1.04;
+    font-weight: 900;
+  }
+
+  p {
+    min-height: 76px;
+    margin: 12px 0 17px;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+
+  .outline-button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1.5px solid var(--color-orange);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-orange);
+    font-size: 18px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  .outline-button:hover {
+    color: #fff;
+    background: var(--color-orange);
+  }
+
+  @media (max-width: 900px) {
+    img {
+      height: 200px;
+    }
+
+    p {
+      min-height: 0;
+    }
+  }
+</style>

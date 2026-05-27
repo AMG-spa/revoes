@@ -1,0 +1,40 @@
+---
+import ServiceCard from "./ServiceCard.astro";
+import { services } from "../data/services";
+---
+
+<section class="services" id="servicios">
+  <h2>¿Qué servicio necesitas?</h2>
+
+  <div class="service-grid">
+    {services.map((service, index) => (
+      <ServiceCard service={service} index={index} />
+    ))}
+  </div>
+</section>
+
+<style>
+  .services {
+    padding: 55px clamp(24px, 3.7vw, 47px) 84px;
+  }
+
+  h2 {
+    margin: 0 0 42px;
+    color: var(--color-orange);
+    font-size: clamp(40px, 4vw, 57px);
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(28px, 4.2vw, 54px);
+  }
+
+  @media (max-width: 900px) {
+    .service-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

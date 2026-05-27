@@ -1,0 +1,61 @@
+<section class="spare-parts" id="ricambi">
+  <h2>Tienda de recambios</h2>
+
+  <p>
+    Entra en nuestra tienda para encontrar recambios y componentes originales compatibles con los productos que tienes instalados.
+    Garantizamos la disponibilidad, la compatibilidad y la asistencia técnica para cada compra.
+  </p>
+
+  <a href="https://ricambi.revosrl.it/" class="store-button">Visita la tienda</a>
+</section>
+
+<style>
+  .spare-parts {
+    padding: 36px clamp(24px, 3.8vw, 47px) 48px;
+    color: #fff;
+    background: var(--color-orange);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(38px, 4vw, 53px);
+    line-height: 1.1;
+    font-weight: 900;
+  }
+
+  p {
+    max-width: 1100px;
+    margin: 32px 0 28px;
+    font-size: clamp(24px, 2.5vw, 31px);
+    line-height: 1.15;
+  }
+
+  .store-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 342px;
+    min-height: 72px;
+    border-radius: 5px;
+    color: var(--color-orange);
+    background: #fff;
+    font-size: 29px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+
+  .store-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.16);
+  }
+
+  @media (max-width: 600px) {
+    .store-button {
+      min-width: 0;
+      width: 100%;
+      font-size: 22px;
+      min-height: 60px;
+    }
+  }
+</style>

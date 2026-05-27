@@ -1,0 +1,270 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { serviceCatalog } from "../../data/serviceCatalog";
+
+export function getStaticPaths() {
+  return serviceCatalog.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+---
+
+<BaseLayout title={`${service.title} - REVO`}>
+  <Header />
+
+  <main class="service-page">
+    <section class="form-shell">
+      <a class="back-link" href="http://localhost:4321/#servicios">← Volver</a>
+
+      <div class="form-heading">
+        <p>Servicio REVO</p>
+        <h1>{service.title}</h1>
+
+        {service.paymentType === "cart" && (
+          <strong>
+            {service.price.toLocaleString("es-ES", {
+              style: "currency",
+              currency: "EUR",
+            })} + IVA
+          </strong>
+        )}
+      </div>
+
+      <form
+        class="service-form"
+        data-service-form
+        data-slug={service.slug}
+        data-title={service.title}
+        data-price={service.price}
+        data-payment-type={service.paymentType}
+      >
+        {service.fields.map((field) => (
+          <label class="field">
+            <span>
+              {field.label}
+              {field.required && <em>*</em>}
+            </span>
+
+            {field.type === "textarea" ? (
+              <textarea name={field.name} required={field.required}></textarea>
+            ) : (
+              <input
+                name={field.name}
+                type={field.type}
+                required={field.required}
+                accept={field.type === "file" ? "image/*,.pdf" : undefined}
+              />
+            )}
+          </label>
+        ))}
+
+        <button class="submit-button" type="submit">{service.ctaLabel}</button>
+      </form>
+
+      <p class="form-note" data-form-note></p>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const CART_KEY = "revo-cart";
+  const OFFICE_EMAIL = "amg.sitiweb@gmail.com";
+
+  const form = document.querySelector<HTMLFormElement>("[data-service-form]");
+  const note = document.querySelector<HTMLElement>("[data-form-note]");
+
+  type CartItem = {
+    id: string;
+    slug: string;
+    title: string;
+    price: number;
+    formData: Record<string, string>;
+  };
+
+  function getCart(): CartItem[] {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function saveCart(items: CartItem[]) {
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+    window.dispatchEvent(new Event("cart:updated"));
+  }
+
+  function createId() {
+    return crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+  }
+
+  function collectFormData(formElement: HTMLFormElement) {
+    const data = new FormData(formElement);
+    const payload: Record<string, string> = {};
+
+    for (const [key, value] of data.entries()) {
+      payload[key] = value instanceof File ? value.name || "Archivo seleccionado" : value.toString();
+    }
+
+    return payload;
+  }
+
+  function buildEmailBody(serviceTitle: string, payload: Record<string, string>) {
+    return [
+      `Servicio: ${serviceTitle}`,
+      "",
+      ...Object.entries(payload).map(([key, value]) => `${key}: ${value}`),
+    ].join("\n");
+  }
+
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const payload = collectFormData(form);
+    const serviceTitle = form.dataset.title || "";
+    const paymentType = form.dataset.paymentType || "cart";
+
+    if (paymentType === "email") {
+      const subject = encodeURIComponent(`Solicitud REVO - ${serviceTitle}`);
+      const body = encodeURIComponent(buildEmailBody(serviceTitle, payload));
+
+      if (note) {
+        note.textContent = "Solicitud preparada. Se abrirá tu cliente de correo.";
+      }
+
+      window.location.href = `mailto:${OFFICE_EMAIL}?subject=${subject}&body=${body}`;
+      return;
+    }
+
+    const cart = getCart();
+
+    cart.push({
+  id: createId(),
+  slug: form.dataset.slug || "",
+  title: serviceTitle,
+  price: Number.parseFloat(form.dataset.price || "0"),
+  formData: payload,
+});
+
+    saveCart(cart);
+
+    window.location.href = "/carrito";
+  });
+</script>
+
+<style>
+  .service-page {
+    min-height: 100vh;
+    padding: 130px clamp(24px, 4vw, 56px) 70px;
+    background: #f7f7f7;
+  }
+
+  .form-shell {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(24px, 4vw, 46px);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  }
+
+  .back-link {
+    color: var(--color-orange);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .form-heading {
+    margin: 28px 0 30px;
+  }
+
+  .form-heading p {
+    margin: 0 0 8px;
+    color: var(--color-orange);
+    font-weight: 900;
+  }
+
+  .form-heading h1 {
+    margin: 0;
+    font-size: clamp(36px, 5vw, 58px);
+    line-height: 1;
+  }
+
+  .form-heading strong {
+    display: block;
+    margin-top: 16px;
+    font-size: 24px;
+  }
+
+  .service-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+    font-weight: 800;
+  }
+
+  .field span em {
+    color: var(--color-orange);
+    font-style: normal;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #cfcfcf;
+    border-radius: 5px;
+    padding: 10px 12px;
+    font: inherit;
+  }
+
+  textarea {
+    min-height: 130px;
+    resize: vertical;
+  }
+
+  .field:has(textarea),
+  .field:has(input[type="file"]) {
+    grid-column: 1 / -1;
+  }
+
+  .submit-button {
+    grid-column: 1 / -1;
+    min-height: 54px;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    background: var(--color-orange);
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .form-note {
+    margin: 18px 0 0;
+    font-weight: 800;
+  }
+
+  @media (max-width: 760px) {
+    .service-form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

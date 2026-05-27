@@ -1,0 +1,231 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { VAT_RATE } from "../data/serviceCatalog";
+---
+
+<BaseLayout title="Checkout - REVO">
+  <Header />
+
+  <main class="checkout-page">
+    <section class="checkout-shell">
+      <a class="back-link" href="/carrito">← Volver al carrito</a>
+
+      <h1>Confirmar pedido</h1>
+
+      <div class="checkout-layout">
+        <div class="checkout-summary" data-checkout-summary></div>
+
+        <aside class="checkout-aside">
+          <div class="aside-totals">
+            <p>Subtotal: <strong data-subtotal>0,00 €</strong></p>
+            <p>IVA 22%: <strong data-vat>0,00 €</strong></p>
+            <p class="total-row">Total: <strong data-total>0,00 €</strong></p>
+          </div>
+
+          <p class="payment-note">
+            El pago se gestionará próximamente a través de Stripe.
+            Al confirmar, tu solicitud quedará registrada.
+          </p>
+
+          <button class="confirm-btn" type="button" data-complete-order>
+            Confirmar solicitud
+          </button>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  import { clearCart, getCart } from "../lib/cart";
+
+  const VAT_RATE = 0.22;
+
+  const summaryEl = document.querySelector<HTMLElement>("[data-checkout-summary]")!;
+  const subtotalEl = document.querySelector<HTMLElement>("[data-subtotal]")!;
+  const vatEl = document.querySelector<HTMLElement>("[data-vat]")!;
+  const totalEl = document.querySelector<HTMLElement>("[data-total]")!;
+  const button = document.querySelector<HTMLButtonElement>("[data-complete-order]")!;
+
+  const currency = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
+
+  function renderSummary() {
+    const items = getCart();
+
+    if (!items.length) {
+      summaryEl.innerHTML = `<p class="empty-msg">No hay servicios en el carrito.</p>`;
+      button.disabled = true;
+      return;
+    }
+
+    summaryEl.innerHTML = items
+      .map(
+        (item) => `
+        <article class="summary-item">
+          <div class="summary-item-info">
+            <strong>${item.title}</strong>
+            <span>${currency.format(Number(item.price))} + IVA</span>
+          </div>
+        </article>
+      `
+      )
+      .join("");
+
+    const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0), 0);
+    const vat = subtotal * VAT_RATE;
+    const total = subtotal + vat;
+
+    subtotalEl.textContent = currency.format(subtotal);
+    vatEl.textContent = currency.format(vat);
+    totalEl.textContent = currency.format(total);
+  }
+
+  button.addEventListener("click", () => {
+    const items = getCart();
+    if (!items.length) return;
+
+    const orderId = `REVO-${Date.now()}`;
+
+    localStorage.setItem(
+      `revo-order-${orderId}`,
+      JSON.stringify({ id: orderId, createdAt: new Date().toISOString(), items })
+    );
+
+    clearCart();
+    window.location.href = `/pedido-confirmado?order=${orderId}`;
+  });
+
+  renderSummary();
+</script>
+
+<style>
+  .checkout-page {
+    min-height: 100vh;
+    padding: 130px clamp(24px, 4vw, 56px) 70px;
+    background: #f7f7f7;
+  }
+
+  .checkout-shell {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    color: var(--color-orange);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 24px 0 32px;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 900;
+  }
+
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── Summary items ── */
+  :global(.summary-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.summary-item-info) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  :global(.summary-item-info strong) {
+    font-size: 17px;
+  }
+
+  :global(.summary-item-info span) {
+    font-size: 14px;
+    color: #666;
+  }
+
+  :global(.empty-msg) {
+    color: #666;
+    font-size: 16px;
+  }
+
+  /* ── Aside ── */
+  .checkout-aside {
+    border-radius: 8px;
+    background: #fff;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 24px;
+  }
+
+  .aside-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 17px;
+  }
+
+  .total-row {
+    font-size: 22px !important;
+    font-weight: 900;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    margin-top: 14px !important;
+  }
+
+  .payment-note {
+    margin: 18px 0;
+    font-size: 13px;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    min-height: 52px;
+    border: none;
+    border-radius: 5px;
+    background: var(--color-orange);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: opacity 180ms ease;
+  }
+
+  .confirm-btn:hover {
+    opacity: 0.88;
+  }
+
+  .confirm-btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  @media (max-width: 760px) {
+    .checkout-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .checkout-aside {
+      position: static;
+    }
+  }
+</style>

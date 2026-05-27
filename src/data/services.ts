@@ -1,0 +1,23 @@
+export const services = [
+  {
+    image: "/images/service-installation.jpg",
+    title: "Primer encendido\npresencial",
+    text: "Un técnico cualificado se encarga de la visita a domicilio, de la comprobación de la instalación y de la puesta en marcha del producto",
+    button: "Reserva la instalación",
+    href: "/servicios/primer-encendido-presencial",
+  },
+  {
+    image: "/images/service-maintenance.jpg",
+    title: "Mantenimiento\ndel producto",
+    text: "Revisión, limpieza y mantenimiento periódico para mantener el producto en buen estado de funcionamiento, seguro y listo para su uso",
+    button: "Reserva el mantenimiento",
+    href: "/servicios/mantenimiento",
+  },
+  {
+    image: "/images/service-purchase.jpg",
+    title: "Instalación\ntelemática",
+    text: "Servicio remoto para verificar la documentación y revisar la instalación a distancia.",
+    button: "Instalación telemática",
+    href: "/servicios/instalacion-telematica",
+  },
+];

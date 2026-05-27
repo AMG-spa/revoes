@@ -1,0 +1,112 @@
+---
+import MenuOverlay from "./MenuOverlay.astro";
+import CartIcon from "./icons/CartIcon.astro";
+---
+
+<header class="site-header">
+  <a class="logo-link" href="/" aria-label="REVO home">
+    <img src="/images/revo-logo.png" alt="REVO" />
+  </a>
+
+  <nav class="header-actions" aria-label="Navigazione principale">
+    <a class="nav-ricambi" href="https://ricambi.revosrl.it/">Ricambi</a>
+    <button class="menu-open" type="button" data-menu-open>
+      <span class="btn-label">Menù</span>
+      <span class="hamburger" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+    <a class="cart-link" href="/carrito" aria-label="Ir al carrito">
+      <CartIcon />
+    </a>
+  </nav>
+
+  <MenuOverlay />
+</header>
+
+<style>
+  .site-header {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: clamp(24px, 3vw, 31px) clamp(24px, 3.8vw, 47px);
+  }
+
+  .logo-link img {
+    width: clamp(158px, 16vw, 196px);
+    display: block;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--color-orange);
+  }
+
+  .header-actions a,
+  .menu-open {
+    min-height: 39px;
+    padding: 0 13px;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    color: #fff;
+    background: transparent;
+    font: 800 14px/1 Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+
+  .header-actions a:hover,
+  .menu-open:hover {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  .cart-link {
+    width: 42px;
+    justify-content: center;
+  }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    width: 22px;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .header-actions .nav-ricambi,
+    .header-actions .cart-link {
+      display: none;
+    }
+
+    .btn-label {
+      display: none;
+    }
+
+    .hamburger {
+      display: flex;
+    }
+
+    .menu-open {
+      width: 46px;
+      justify-content: center;
+    }
+  }
+</style>

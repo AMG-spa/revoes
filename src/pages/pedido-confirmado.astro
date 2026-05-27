@@ -1,0 +1,66 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<BaseLayout title="Pedido confirmado - REVO">
+  <Header />
+
+  <main class="success-page">
+    <section class="success-shell">
+      <p class="eyebrow">Pedido recibido</p>
+      <h1>Gracias, tu solicitud ha sido registrada.</h1>
+      <p>
+        Este es un pedido de prueba. Cuando conectemos Stripe, después del pago confirmado se enviará automáticamente
+        una email a la oficina.
+      </p>
+
+      <a href="/" class="home-link">Volver al inicio</a>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .success-page {
+    min-height: 100vh;
+    padding: 130px clamp(24px, 4vw, 56px) 70px;
+    background: #f7f7f7;
+  }
+
+  .success-shell {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: clamp(24px, 4vw, 46px);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  }
+
+  .eyebrow {
+    margin: 0 0 12px;
+    color: var(--color-orange);
+    font-weight: 900;
+  }
+
+  h1 {
+    margin: 0 0 18px;
+    font-size: clamp(42px, 5vw, 62px);
+    line-height: 1;
+  }
+
+  .home-link {
+    display: inline-flex;
+    min-height: 50px;
+    margin-top: 22px;
+    padding: 0 24px;
+    align-items: center;
+    border-radius: 5px;
+    color: #fff;
+    background: var(--color-orange);
+    font-weight: 900;
+    text-decoration: none;
+  }
+</style>
