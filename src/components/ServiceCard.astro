@@ -35,10 +35,9 @@ const { service, index } = Astro.props;
 
   img {
     display: block;
-    width: calc(100% - 28px);
-    height: 244px;
+    width: calc(100% - 60px);
+    height: auto;
     margin: 14px auto 0;
-    object-fit: cover;
     border-radius: 4px;
   }
 
@@ -82,10 +81,6 @@ const { service, index } = Astro.props;
   }
 
   @media (max-width: 900px) {
-    img {
-      height: 200px;
-    }
-
     p {
       min-height: 0;
     }
