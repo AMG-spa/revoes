@@ -41,7 +41,7 @@ import { VAT_RATE } from "../data/serviceCatalog";
 </BaseLayout>
 
 <script>
-  import { clearCart, getCart } from "../lib/cart";
+  import { getCart } from "../lib/cart";
 
   const VAT_RATE = 0.22;
 
@@ -84,19 +84,37 @@ import { VAT_RATE } from "../data/serviceCatalog";
     totalEl.textContent = currency.format(total);
   }
 
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     const items = getCart();
     if (!items.length) return;
 
-    const orderId = `REVO-${Date.now()}`;
+    button.disabled = true;
+    button.textContent = "Redirigiendo a pago seguro…";
 
-    localStorage.setItem(
-      `revo-order-${orderId}`,
-      JSON.stringify({ id: orderId, createdAt: new Date().toISOString(), items })
-    );
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Send the cart contents (slugs decide the price server-side;
+        // form data + file links travel to the order record).
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            slug: item.slug,
+            formData: item.formData,
+            files: item.files ?? [],
+          })),
+        }),
+      });
 
-    clearCart();
-    window.location.href = `/pedido-confirmado?order=${orderId}`;
+      if (!res.ok) throw new Error("checkout failed");
+
+      const { url } = await res.json();
+      window.location.href = url; // → Stripe hosted checkout
+    } catch {
+      button.disabled = false;
+      button.textContent = "Confirmar solicitud";
+      alert("No se pudo iniciar el pago. Inténtalo de nuevo.");
+    }
   });
 
   renderSummary();

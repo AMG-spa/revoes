@@ -1,11 +1,19 @@
 const CART_KEY = "revo-cart";
 
+export type UploadedFile = {
+  field: string;
+  url: string;
+  filename: string;
+  contentType: string;
+};
+
 export type CartItem = {
   id: string;
   slug: string;
   title: string;
   price: number;
   formData: Record<string, string>;
+  files?: UploadedFile[];
 };
 
 export function getCart(): CartItem[] {

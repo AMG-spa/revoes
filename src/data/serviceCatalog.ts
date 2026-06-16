@@ -25,8 +25,8 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     slug: "primer-encendido-presencial",
     title: "Primer encendido presencial",
     price: 109.99,
-    paymentType: "cart",
-    ctaLabel: "Añadir al carrito",
+    paymentType: "email",
+    ctaLabel: "Enviar solicitud",
     fields: [
       { name: "fullName", label: "Nombre y apellidos", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },

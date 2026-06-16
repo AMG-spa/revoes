@@ -10,10 +10,9 @@ import Footer from "../components/Footer.astro";
   <main class="success-page">
     <section class="success-shell">
       <p class="eyebrow">Pedido recibido</p>
-      <h1>Gracias, tu solicitud ha sido registrada.</h1>
+      <h1>Gracias, tu pago ha sido confirmado.</h1>
       <p>
-        Este es un pedido de prueba. Cuando conectemos Stripe, después del pago confirmado se enviará automáticamente
-        una email a la oficina.
+        Hemos recibido tu solicitud. En breve recibirás la confirmación por email.
       </p>
 
       <a href="/" class="home-link">Volver al inicio</a>
@@ -22,6 +21,16 @@ import Footer from "../components/Footer.astro";
 
   <Footer />
 </BaseLayout>
+
+<script>
+  import { clearCart } from "../lib/cart";
+
+  // The customer returned from a successful Stripe checkout — empty the cart.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("session_id")) {
+    clearCart();
+  }
+</script>
 
 <style>
   .success-page {
