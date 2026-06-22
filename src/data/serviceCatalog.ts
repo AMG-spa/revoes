@@ -18,7 +18,7 @@ export type ServiceCatalogItem = {
   fields: ServiceField[];
 };
 
-export const VAT_RATE = 0.22;
+export const VAT_RATE = 0.21;
 
 export const serviceCatalog: ServiceCatalogItem[] = [
   {
@@ -64,7 +64,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     title: "Instalación telemática",
     price: 49,
     paymentType: "cart",
-    ctaLabel: "Añadir al carrito",
+    ctaLabel: "Pagar 49 € + IVA",
     fields: [
       { name: "fullName", label: "Nombre y apellidos", type: "text", required: true },
       { name: "companyName", label: "Nombre de la empresa", type: "text", required: false },

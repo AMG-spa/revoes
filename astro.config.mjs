@@ -6,8 +6,8 @@ import vercel from '@astrojs/vercel';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://revo.es',
-  // Pages stay static; only routes that opt out with `prerender = false`
-  // (the Stripe API endpoints) run on Vercel's serverless runtime.
+  // Le pagine restano statiche; solo /api/send-order (prerender = false)
+  // gira come funzione serverless per inviare l'email via Resend.
   adapter: vercel(),
   integrations: [sitemap()],
 });

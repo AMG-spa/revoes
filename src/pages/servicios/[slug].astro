@@ -12,6 +12,9 @@ export function getStaticPaths() {
 }
 
 const { service } = Astro.props;
+
+// Solo i servizi "cart" richiedono il pagamento integrato (Payment Element).
+const isPaid = service.paymentType === "cart";
 ---
 
 <BaseLayout title={`${service.title} - REVO`}>
@@ -37,12 +40,11 @@ const { service } = Astro.props;
       <form
         class="service-form"
         data-service-form
-        data-slug={service.slug}
-        data-title={service.title}
-        data-price={service.price}
-        data-payment-type={service.paymentType}
-        data-cta={service.ctaLabel}
+        data-paid={isPaid ? "true" : undefined}
+        enctype="multipart/form-data"
       >
+        <input type="hidden" name="slug" value={service.slug} />
+
         {service.fields.map((field) => (
           <label class="field">
             <span>
@@ -63,150 +65,141 @@ const { service } = Astro.props;
           </label>
         ))}
 
-        <button class="submit-button" type="submit">{service.ctaLabel}</button>
-      </form>
+        {isPaid && (
+          <div class="payment-block">
+            <span class="payment-label">Pago con tarjeta</span>
+            <div id="payment-element"></div>
+          </div>
+        )}
 
-      <p class="form-note" data-form-note></p>
+        <button class="submit-button" type="submit">{service.ctaLabel}</button>
+        <p class="form-note" data-note role="status" aria-live="polite"></p>
+      </form>
     </section>
   </main>
 
+  <script>
+    import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
+
+    const form = document.querySelector<HTMLFormElement>("[data-service-form]")!;
+    const note = document.querySelector<HTMLElement>("[data-note]")!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const isPaid = form.dataset.paid === "true";
+    const slug = (form.querySelector('input[name="slug"]') as HTMLInputElement).value;
+    const ctaLabel = button.textContent ?? "Enviar";
+
+    let stripe: Stripe | null = null;
+    let elements: StripeElements | null = null;
+
+    function setNote(text: string, kind: "error" | "success") {
+      note.textContent = text;
+      note.classList.remove("is-error", "is-success");
+      note.classList.add(kind === "error" ? "is-error" : "is-success");
+    }
+
+    function resetButton() {
+      button.disabled = false;
+      button.textContent = ctaLabel;
+    }
+
+    // Per i servizi a pagamento: prepara il Payment Element al caricamento.
+    if (isPaid) {
+      initPayment();
+    }
+
+    async function initPayment() {
+      try {
+        stripe = await loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY);
+        if (!stripe) throw new Error("Stripe no disponible");
+
+        const res = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "No se pudo iniciar el pago.");
+
+        elements = stripe.elements({ clientSecret: data.clientSecret });
+        elements.create("payment").mount("#payment-element");
+      } catch (err) {
+        setNote(err instanceof Error ? err.message : "Error al iniciar el pago.", "error");
+        button.disabled = true;
+      }
+    }
+
+    async function sendOrder(paid: boolean) {
+      button.textContent = "Enviando datos…";
+      const res = await fetch("/api/send-order", { method: "POST", body: new FormData(form) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // Se ha già pagato non possiamo "annullare": lo rassicuriamo.
+        if (paid) {
+          setNote("Pago recibido. Hubo un problema al enviar los datos, te contactaremos.", "success");
+          button.textContent = "Pago completado";
+          return;
+        }
+        throw new Error(data.error || "No se pudo enviar la solicitud.");
+      }
+      form.reset();
+      setNote(
+        paid
+          ? "¡Pago recibido! Hemos enviado tu solicitud correctamente."
+          : "¡Solicitud enviada! Te contactaremos lo antes posible.",
+        "success"
+      );
+      button.textContent = paid ? "Pago completado" : ctaLabel;
+      if (!paid) button.disabled = false;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      // Validazione nativa: evidenzia il primo campo mancante/errato.
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      note.textContent = "";
+      note.classList.remove("is-error", "is-success");
+      button.disabled = true;
+
+      try {
+        if (isPaid) {
+          if (!stripe || !elements) throw new Error("El pago no está listo. Recarga la página.");
+
+          button.textContent = "Procesando pago…";
+          // Prima il pagamento; la mail parte SOLO se va a buon fine.
+          const { error, paymentIntent } = await stripe.confirmPayment({
+            elements,
+            redirect: "if_required",
+          });
+
+          if (error) {
+            setNote(error.message || "El pago no se pudo completar.", "error");
+            resetButton();
+            return;
+          }
+          if (paymentIntent?.status !== "succeeded") {
+            setNote("El pago no se completó. Inténtalo de nuevo.", "error");
+            resetButton();
+            return;
+          }
+
+          await sendOrder(true);
+        } else {
+          await sendOrder(false);
+        }
+      } catch (err) {
+        setNote(err instanceof Error ? err.message : "Error al enviar la solicitud.", "error");
+        resetButton();
+      }
+    });
+  </script>
+
   <Footer />
 </BaseLayout>
-
-<script>
-  const CART_KEY = "revo-cart";
-  const OFFICE_EMAIL = "amg.sitiweb@gmail.com";
-
-  const form = document.querySelector<HTMLFormElement>("[data-service-form]");
-  const note = document.querySelector<HTMLElement>("[data-form-note]");
-
-  type CartItem = {
-    id: string;
-    slug: string;
-    title: string;
-    price: number;
-    formData: Record<string, string>;
-  };
-
-  function getCart(): CartItem[] {
-    try {
-      return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-    } catch {
-      return [];
-    }
-  }
-
-  function saveCart(items: CartItem[]) {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-    window.dispatchEvent(new Event("cart:updated"));
-  }
-
-  function createId() {
-    return crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
-  }
-
-  function collectFormData(formElement: HTMLFormElement) {
-    const data = new FormData(formElement);
-    const payload: Record<string, string> = {};
-
-    for (const [key, value] of data.entries()) {
-      payload[key] = value instanceof File ? value.name || "Archivo seleccionado" : value.toString();
-    }
-
-    return payload;
-  }
-
-  function buildEmailBody(serviceTitle: string, payload: Record<string, string>) {
-    return [
-      `Servicio: ${serviceTitle}`,
-      "",
-      ...Object.entries(payload).map(([key, value]) => `${key}: ${value}`),
-    ].join("\n");
-  }
-
-  type UploadedFile = { field: string; url: string; filename: string; contentType: string };
-
-  async function uploadFiles(formElement: HTMLFormElement): Promise<UploadedFile[]> {
-    const fileData = new FormData();
-    let hasFiles = false;
-
-    for (const input of formElement.querySelectorAll<HTMLInputElement>('input[type="file"]')) {
-      const file = input.files?.[0];
-      if (file && file.size > 0) {
-        fileData.append(input.name, file);
-        hasFiles = true;
-      }
-    }
-
-    if (!hasFiles) return [];
-
-    const res = await fetch("/api/upload-files", { method: "POST", body: fileData });
-    if (!res.ok) {
-      const { error } = await res.json().catch(() => ({ error: "Error al subir los archivos" }));
-      throw new Error(error);
-    }
-    const { files } = await res.json();
-    return files as UploadedFile[];
-  }
-
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const payload = collectFormData(form);
-    const serviceTitle = form.dataset.title || "";
-    const paymentType = form.dataset.paymentType || "cart";
-
-    if (paymentType === "email") {
-      const subject = encodeURIComponent(`Solicitud REVO - ${serviceTitle}`);
-      const body = encodeURIComponent(buildEmailBody(serviceTitle, payload));
-
-      if (note) {
-        note.textContent = "Solicitud preparada. Se abrirá tu cliente de correo.";
-      }
-
-      window.location.href = `mailto:${OFFICE_EMAIL}?subject=${subject}&body=${body}`;
-      return;
-    }
-
-    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Subiendo archivos…";
-    }
-
-    let files: UploadedFile[] = [];
-    try {
-      files = await uploadFiles(form);
-    } catch (err) {
-      if (note) note.textContent = err instanceof Error ? err.message : "Error al subir los archivos";
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = form.dataset.cta || "Añadir al carrito";
-      }
-      return;
-    }
-
-    const cart = getCart();
-
-    cart.push({
-      id: createId(),
-      slug: form.dataset.slug || "",
-      title: serviceTitle,
-      price: Number.parseFloat(form.dataset.price || "0"),
-      formData: payload,
-      files,
-    });
-
-    saveCart(cart);
-
-    window.location.href = "/carrito";
-  });
-</script>
 
 <style>
   .service-page {
@@ -301,9 +294,36 @@ const { service } = Astro.props;
     cursor: pointer;
   }
 
-  .form-note {
-    margin: 18px 0 0;
+  .payment-block {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+    background: #fafafa;
+  }
+
+  .payment-label {
     font-weight: 800;
+  }
+
+  .form-note {
+    grid-column: 1 / -1;
+    margin: 4px 0 0;
+    font-weight: 800;
+  }
+
+  .form-note:empty {
+    display: none;
+  }
+
+  .form-note.is-error {
+    color: #c0261b;
+  }
+
+  .form-note.is-success {
+    color: #1b8a3a;
   }
 
   @media (max-width: 760px) {

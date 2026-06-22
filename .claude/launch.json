@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "stripe-school",
+      "name": "revo",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "/Users/siti.web/stripe-school-test"],
-      "port": 4322
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/siti.web/revo es"],
+      "port": 4321,
+      "autoPort": true
     }
   ]
 }

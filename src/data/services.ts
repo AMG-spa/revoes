@@ -1,7 +1,7 @@
 export const services = [
   {
     image: "/images/service-installation.jpg",
-    title: "Primer encendido\npresencial",
+    title: "Puesta en marcha\npresencial",
     text: "Un técnico cualificado se encarga de la visita a domicilio, de la comprobación de la instalación y de la puesta en marcha del producto",
     button: "Reserva la instalación",
     href: "/servicios/primer-encendido-presencial",
@@ -15,7 +15,7 @@ export const services = [
   },
   {
     image: "/images/service-purchase.jpg",
-    title: "Instalación\ntelemática",
+    title: "Activación de la garantía \noficial telemática",
     text: "Servicio remoto para verificar la documentación y revisar la instalación a distancia.",
     button: "Instalación telemática",
     href: "/servicios/instalacion-telematica",

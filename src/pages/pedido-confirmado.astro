@@ -22,16 +22,6 @@ import Footer from "../components/Footer.astro";
   <Footer />
 </BaseLayout>
 
-<script>
-  import { clearCart } from "../lib/cart";
-
-  // The customer returned from a successful Stripe checkout — empty the cart.
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("session_id")) {
-    clearCart();
-  }
-</script>
-
 <style>
   .success-page {
     min-height: 100vh;
