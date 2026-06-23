@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
-import { serviceCatalog, VAT_RATE } from "../../data/serviceCatalog";
+import { serviceCatalog } from "../../data/serviceCatalog";
 
 // On-demand: gira sul server, non al build.
 export const prerender = false;
@@ -25,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Servicio no válido." }, 400);
   }
 
-  const amount = Math.round(service.price * (1 + VAT_RATE) * 100); // centesimi, IVA inclusa
+  const amount = Math.round(service.price * 100); // centesimi: il prezzo è già IVA inclusa
 
   try {
     const stripe = new Stripe(secret);
