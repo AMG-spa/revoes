@@ -90,6 +90,7 @@ const isPaid = service.paymentType === "cart";
 
     let stripe: Stripe | null = null;
     let elements: StripeElements | null = null;
+    let paymentIntentId: string | null = null;
 
     function setNote(text: string, kind: "error" | "success") {
       note.textContent = text;
@@ -120,6 +121,7 @@ const isPaid = service.paymentType === "cart";
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || "No se pudo iniciar el pago.");
 
+        paymentIntentId = String(data.clientSecret).split("_secret")[0];
         elements = stripe.elements({ clientSecret: data.clientSecret });
         elements.create("payment").mount("#payment-element");
       } catch (err) {
@@ -132,24 +134,22 @@ const isPaid = service.paymentType === "cart";
       button.textContent = "Enviando datos…";
       const res = await fetch("/api/send-order", { method: "POST", body: new FormData(form) });
       const data = await res.json().catch(() => ({}));
+
+      if (paid) {
+        // Il pagamento è già riuscito: in ogni caso porta il cliente alla
+        // pagina di ringraziamento (anche se l'invio dati avesse un intoppo).
+        window.location.href = "/pedido-confirmado";
+        return;
+      }
+
       if (!res.ok) {
-        // Se ha già pagato non possiamo "annullare": lo rassicuriamo.
-        if (paid) {
-          setNote("Pago recibido. Hubo un problema al enviar los datos, te contactaremos.", "success");
-          button.textContent = "Pago completado";
-          return;
-        }
         throw new Error(data.error || "No se pudo enviar la solicitud.");
       }
+
       form.reset();
-      setNote(
-        paid
-          ? "¡Pago recibido! Hemos enviado tu solicitud correctamente."
-          : "¡Solicitud enviada! Te contactaremos lo antes posible.",
-        "success"
-      );
-      button.textContent = paid ? "Pago completado" : ctaLabel;
-      if (!paid) button.disabled = false;
+      setNote("¡Solicitud enviada! Te contactaremos lo antes posible.", "success");
+      button.textContent = ctaLabel;
+      button.disabled = false;
     }
 
     form.addEventListener("submit", async (event) => {
@@ -170,6 +170,17 @@ const isPaid = service.paymentType === "cart";
           if (!stripe || !elements) throw new Error("El pago no está listo. Recarga la página.");
 
           button.textContent = "Procesando pago…";
+
+          // Associa l'email del cliente al pagamento -> Stripe gli invia la ricevuta.
+          const emailInput = form.querySelector('input[name="email"]') as HTMLInputElement | null;
+          if (paymentIntentId && emailInput?.value) {
+            await fetch("/api/attach-receipt-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentIntentId, email: emailInput.value }),
+            }).catch(() => {}); // non bloccare il pagamento se fallisce
+          }
+
           // Prima il pagamento; la mail parte SOLO se va a buon fine.
           const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
