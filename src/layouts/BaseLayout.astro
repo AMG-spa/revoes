@@ -13,6 +13,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
 
+    <!-- Favicon (logo REVO nella scheda del browser) -->
+    <link rel="icon" type="image/png" href="/images/revo-logo.png" />
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
