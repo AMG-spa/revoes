@@ -130,9 +130,51 @@ const isPaid = service.paymentType === "cart";
       }
     }
 
+    // Ridimensiona/comprime le immagini così il totale resta sotto il limite
+    // di Vercel (4,5 MB per richiesta). I PDF e gli altri file restano invariati.
+    async function compressImage(file: File): Promise<File> {
+      if (!file.type.startsWith("image/")) return file;
+      try {
+        const bitmap = await createImageBitmap(file);
+        const maxDim = 1600;
+        let { width, height } = bitmap;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d")!.drawImage(bitmap, 0, 0, width, height);
+        const blob = await new Promise<Blob | null>((res) =>
+          canvas.toBlob(res, "image/jpeg", 0.8)
+        );
+        if (!blob) return file;
+        return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+      } catch {
+        return file; // in caso di problemi, invia l'originale
+      }
+    }
+
+    async function buildPayload(): Promise<FormData> {
+      const fd = new FormData(form);
+      const fileInputs = form.querySelectorAll<HTMLInputElement>('input[type="file"]');
+      for (const input of fileInputs) {
+        const file = input.files?.[0];
+        if (file && file.size > 0) {
+          const out = await compressImage(file);
+          fd.set(input.name, out, out.name);
+        }
+      }
+      return fd;
+    }
+
     async function sendOrder(paid: boolean) {
+      button.textContent = "Preparando archivos…";
+      const payload = await buildPayload();
       button.textContent = "Enviando datos…";
-      const res = await fetch("/api/send-order", { method: "POST", body: new FormData(form) });
+      const res = await fetch("/api/send-order", { method: "POST", body: payload });
       const data = await res.json().catch(() => ({}));
 
       if (paid) {
