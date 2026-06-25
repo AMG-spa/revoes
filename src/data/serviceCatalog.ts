@@ -62,9 +62,9 @@ export const serviceCatalog: ServiceCatalogItem[] = [
   {
     slug: "instalacion-telematica",
     title: "Instalación telemática",
-    price: 0.5,
+    price: 49,
     paymentType: "cart",
-    ctaLabel: "Pagar (PRUEBA) 0,50 €",
+    ctaLabel: "Pagar 49 € (IVA incluida)",
     fields: [
       { name: "fullName", label: "Nombre y apellidos", type: "text", required: true },
       { name: "companyName", label: "Nombre de la empresa", type: "text", required: false },
