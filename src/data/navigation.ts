@@ -1,5 +1,11 @@
 export const menuItems = [
-  { label: "PRIMER ENCENDIDO", href: "/servicios/primer-encendido-presencial" },
+  {
+    label: "PUESTA EN MARCHA PRESENCIAL",
+    href: "/servicios/puesta-en-marcha-presencial",
+  },
   { label: "MANTENIMIENTO", href: "/servicios/mantenimiento" },
-  { label: "INSTALACIÓN TELEMÁTICA", href: "/servicios/instalacion-telematica" },
+  {
+    label: "INSTALACIÓN TELEMÁTICA",
+    href: "/servicios/instalacion-telematica",
+  },
 ];
