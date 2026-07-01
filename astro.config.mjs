@@ -5,7 +5,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://revo.es',
+  site: 'https://revosrl.es',
   // Le pagine restano statiche; solo /api/send-order (prerender = false)
   // gira come funzione serverless per inviare l'email via Resend.
   adapter: vercel(),
