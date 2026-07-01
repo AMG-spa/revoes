@@ -17,7 +17,7 @@ export const services = [
     image: "/images/service-purchase.jpg",
     title: "Activación de la garantía \noficial telemática",
     text: "Servicio remoto para verificar la documentación y revisar la instalación a distancia.",
-    button: "Instalación telemática",
+    button: "Activación de la garantía oficial telemática",
     href: "/servicios/instalacion-telematica",
   },
 ];
