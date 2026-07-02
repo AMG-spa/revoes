@@ -124,7 +124,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     title: "Activación de la garantía oficial telemática",
     price: 49,
     paymentType: "cart",
-    ctaLabel: "Pagar 5 € (IVA incluida)",
+    ctaLabel: "Pagar 49 € (IVA incluida)",
     fields: [
       {
         name: "fullName",
