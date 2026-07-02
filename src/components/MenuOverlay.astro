@@ -9,12 +9,6 @@ import { menuItems } from "../data/navigation";
   </button>
 
   <div class="menu-extras">
-    <a class="cart-menu-link" href="/carrito">
-      <svg width="0.85em" height="0.85em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 5h2l2.2 10.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 1.9-1.4L21 9H7.1M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
-      </svg>
-      <span class="menu-cart-count" hidden></span>
-    </a>
     <a href="https://ricambi.revosrl.it/">REPUESTOS</a>
   </div>
 
@@ -43,16 +37,6 @@ import { menuItems } from "../data/navigation";
     document.body.classList.remove("menu-is-open");
   }
 
-  function updateCartCount() {
-    const badge = document.querySelector<HTMLElement>(".menu-cart-count");
-    if (!badge) return;
-    try {
-      const count = JSON.parse(localStorage.getItem("revo-cart") || "[]").length;
-      badge.textContent = String(count);
-      badge.hidden = count === 0;
-    } catch {}
-  }
-
   openButton?.addEventListener("click", openMenu);
   closeButton?.addEventListener("click", closeMenu);
   links.forEach((link) => link.addEventListener("click", closeMenu));
@@ -60,9 +44,6 @@ import { menuItems } from "../data/navigation";
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeMenu();
   });
-
-  updateCartCount();
-  window.addEventListener("cart:updated", updateCartCount);
 </script>
 
 <style>
@@ -183,7 +164,7 @@ import { menuItems } from "../data/navigation";
     }
   }
 
-  /* ── Mobile extras (Carrito + RICAMBI) ── */
+  /* ── Mobile extras (Repuestos) ── */
   .menu-extras {
     display: none;
     flex-direction: column;
@@ -233,19 +214,6 @@ import { menuItems } from "../data/navigation";
 
   .menu-extras a:hover::after {
     transform: scaleX(1);
-  }
-
-  .cart-menu-link {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 0.18em;
-  }
-
-  .menu-cart-count {
-    font-size: 0.55em;
-    font-weight: 900;
-    line-height: 1;
-    margin-top: 0.1em;
   }
 
   @media (max-width: 768px) {

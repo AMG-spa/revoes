@@ -1,6 +1,5 @@
 ---
 import MenuOverlay from "./MenuOverlay.astro";
-import CartIcon from "./icons/CartIcon.astro";
 ---
 
 <header class="site-header">
@@ -18,9 +17,6 @@ import CartIcon from "./icons/CartIcon.astro";
         <span></span>
       </span>
     </button>
-    <a class="cart-link" href="/carrito" aria-label="Ir al carrito">
-      <CartIcon />
-    </a>
   </nav>
 
   <MenuOverlay />
@@ -70,11 +66,6 @@ import CartIcon from "./icons/CartIcon.astro";
     background: rgba(0, 0, 0, 0.12);
   }
 
-  .cart-link {
-    width: 42px;
-    justify-content: center;
-  }
-
   .hamburger {
     display: none;
     flex-direction: column;
@@ -91,8 +82,7 @@ import CartIcon from "./icons/CartIcon.astro";
   }
 
   @media (max-width: 768px) {
-    .header-actions .nav-ricambi,
-    .header-actions .cart-link {
+    .header-actions .nav-ricambi {
       display: none;
     }
 
