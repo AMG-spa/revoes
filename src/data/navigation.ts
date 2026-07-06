@@ -5,7 +5,7 @@ export const menuItems = [
   },
   { label: "MANTENIMIENTO", href: "/servicios/mantenimiento" },
   {
-    label: "INSTALACIÓN TELEMÁTICA",
+    label: "ACTIVACIÓN DE LA GARANTÍA OFICIAL TELEMÁTICA",
     href: "/servicios/instalacion-telematica",
   },
 ];
