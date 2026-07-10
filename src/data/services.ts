@@ -3,7 +3,7 @@ export const services = [
     image: "/images/service-installation.jpg",
     title: "Puesta en marcha\npresencial",
     text: "Un técnico cualificado se encarga de la visita a domicilio, de la comprobación de la instalación y de la puesta en marcha del producto",
-    button: "Reserva la instalación",
+    button: "Puesta en marcha\npresencial",
     href: "/servicios/puesta-en-marcha-presencial",
   },
   {

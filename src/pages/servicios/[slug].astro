@@ -47,12 +47,34 @@ const isPaid = service.paymentType === "cart";
 
         {service.fields.map((field) => (
           <label class="field">
-            <span>
+                     <span>
               {field.label}
               {field.required && <em>*</em>}
+              {field.hint && (
+                <span class="info-icon" tabindex="0">
+                  ⓘ
+                  <span class="info-tooltip">
+                    {field.hint}
+                    {field.hintImage && <img src={field.hintImage} alt="Ejemplo" />}
+                  </span>
+                </span>
+              )}
             </span>
 
-            {field.type === "textarea" ? (
+            {field.type === "choice" ? (
+              <div class="choice-cards">
+                {field.options?.map((opt) => (
+                  <label class="choice-card">
+                    <input type="radio" name={field.name} value={opt.value} required={field.required} />
+                    <span class="choice-card-title">{opt.label}</span>
+                    <span class="choice-card-price">
+                      {opt.price.toLocaleString("es-ES", { style: "currency", currency: "EUR" })}
+                      <em> + IVA + DEP. </em>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ) : field.type === "textarea" ? (
               <textarea name={field.name} required={field.required}></textarea>
             ) : (
               <input
@@ -315,6 +337,52 @@ const isPaid = service.paymentType === "cart";
     font-style: normal;
   }
 
+    .info-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #e2e2e2;
+    color: #555;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: help;
+    vertical-align: middle;
+  }
+
+  .info-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    z-index: 10;
+    width: 220px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .info-tooltip img {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    border-radius: 4px;
+  }
+
+  .info-icon:hover .info-tooltip,
+  .info-icon:focus .info-tooltip {
+    display: block;
+  }
+
   input,
   textarea {
     width: 100%;
@@ -331,8 +399,63 @@ const isPaid = service.paymentType === "cart";
   }
 
   .field:has(textarea),
-  .field:has(input[type="file"]) {
+  .field:has(input[type="file"]),
+  .field:has(.choice-cards) {
     grid-column: 1 / -1;
+  }
+
+  .choice-cards {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .choice-card {
+    flex: 1 1 200px;
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border: 2px solid #cfcfcf;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .choice-card input[type="radio"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .choice-card:has(input:checked) {
+    border-color: var(--color-orange);
+    background: #fff7f0;
+  }
+
+  .choice-card:has(input:focus-visible) {
+    outline: 2px solid var(--color-orange);
+    outline-offset: 2px;
+  }
+
+  .choice-card-title {
+    font-size: 16px;
+  }
+
+  .choice-card-price {
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+  }
+
+  .choice-card-price em {
+    font-style: normal;
+    font-size: 12px;
   }
 
   .submit-button {

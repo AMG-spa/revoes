@@ -1,5 +1,5 @@
 type InputFieldType = "text" | "email" | "date" | "tel" | "file";
-type FieldType = InputFieldType | "textarea";
+type FieldType = InputFieldType | "textarea" | "choice";
 type PaymentType = "cart" | "email";
 
 export type ServiceField = {
@@ -7,6 +7,9 @@ export type ServiceField = {
   label: string;
   type: FieldType;
   required: boolean;
+  hint?: string;
+  hintImage?: string;
+  options?: { value: string; label: string; price: number }[];
 };
 
 export type ServiceCatalogItem = {
@@ -24,10 +27,20 @@ export const serviceCatalog: ServiceCatalogItem[] = [
   {
     slug: "puesta-en-marcha-presencial",
     title: "Puesta en marcha presencial",
-    price: 109.99,
+    price: 0,
     paymentType: "email",
     ctaLabel: "Enviar solicitud",
     fields: [
+      {
+        name: "productType",
+        label: "Tipo de producto",
+        type: "choice",
+        required: true,
+        options: [
+          { value: "estufa", label: "Estufa", price: 60 },
+          { value: "termoestufa", label: "Termoestufa", price: 100 },
+        ],
+      },
       {
         name: "fullName",
         label: "Nombre y apellidos",
@@ -180,33 +193,46 @@ export const serviceCatalog: ServiceCatalogItem[] = [
       },
       {
         name: "labelFile",
-        label: "Foto o PDF de la etiqueta",
+        label:
+          "Foto o PDF de la etiqueta que figura en la parte trasera del producto",
         type: "file",
         required: true,
+        hint: "Suggerimento",
       },
       {
         name: "invoiceFile",
-        label: "Factura de compra",
+        label: "Factura de compra del producto",
         type: "file",
         required: true,
+        hint: "Suggerimento",
       },
       {
         name: "backPhoto",
         label: "Foto del retro",
         type: "file",
         required: true,
+        hint: "Suggerimento",
       },
       {
         name: "outsidePhoto",
         label: "Foto del exterior",
         type: "file",
         required: true,
+        hint: "Suggerimento",
       },
       {
         name: "widePhoto",
         label: "Foto con encuadre general a campo abierto",
         type: "file",
         required: true,
+        hint: "Suggerimento",
+      },
+      {
+        name: "installationSketch",
+        label: "Croquis de la instalación (opcional)",
+        type: "file",
+        required: false,
+        hint: "Suggerimento",
       },
       {
         name: "installationDescription",
