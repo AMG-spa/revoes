@@ -219,6 +219,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         type: "file",
         required: true,
         hint: "Suggerimento",
+        hintImage: "/images/hints/foto-exterior.png",
       },
       {
         name: "widePhoto",

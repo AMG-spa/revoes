@@ -8,7 +8,8 @@ export const prerender = false;
 const EMAIL_TO = import.meta.env.ORDER_EMAIL_TO;
 const EMAIL_FROM = import.meta.env.ORDER_EMAIL_FROM || "onboarding@resend.dev";
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB per file
+const MAX_BYTES = 10 * 1024 * 1024; // 10 MB per file immagine (comunque compressa dal client)
+const MAX_DOCUMENT_BYTES = 8 * 1024 * 1024; // 8 MB per documenti non-immagine (es. PDF, mai compressi)
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/heic", "application/pdf"];
 
 export const POST: APIRoute = async ({ request }) => {
@@ -37,8 +38,11 @@ export const POST: APIRoute = async ({ request }) => {
         if (field.required) return json({ error: `Falta el archivo: ${field.label}` }, 422);
         continue;
       }
-      if (file.size > MAX_BYTES) {
-        return json({ error: `El archivo "${field.label}" supera los 10 MB.` }, 422);
+      const isImage = file.type.startsWith("image/");
+      const sizeLimit = isImage ? MAX_BYTES : MAX_DOCUMENT_BYTES;
+      if (file.size > sizeLimit) {
+        const limitMb = sizeLimit / 1024 / 1024;
+        return json({ error: `El archivo "${field.label}" supera los ${limitMb} MB.` }, 422);
       }
       if (!ALLOWED.includes(file.type)) {
         return json({ error: `Formato no admitido en: ${field.label} (usa imagen o PDF).` }, 422);

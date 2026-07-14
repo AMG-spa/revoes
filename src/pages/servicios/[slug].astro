@@ -41,6 +41,8 @@ const isPaid = service.paymentType === "cart";
         class="service-form"
         data-service-form
         data-paid={isPaid ? "true" : undefined}
+        data-price={service.price}
+        data-title={service.title}
         enctype="multipart/form-data"
       >
         <input type="hidden" name="slug" value={service.slug} />
@@ -82,6 +84,7 @@ const isPaid = service.paymentType === "cart";
                 type={field.type}
                 required={field.required}
                 accept={field.type === "file" ? "image/*,.pdf" : undefined}
+                data-label={field.type === "file" ? field.label : undefined}
               />
             )}
           </label>
@@ -109,10 +112,20 @@ const isPaid = service.paymentType === "cart";
     const isPaid = form.dataset.paid === "true";
     const slug = (form.querySelector('input[name="slug"]') as HTMLInputElement).value;
     const ctaLabel = button.textContent ?? "Enviar";
+    const servicePrice = Number(form.dataset.price ?? 0);
+    const serviceTitle = form.dataset.title ?? slug;
 
     let stripe: Stripe | null = null;
     let elements: StripeElements | null = null;
     let paymentIntentId: string | null = null;
+
+    // Eventi GA4 (funnel begin_checkout -> purchase). Rispetta il consenso
+    // cookie: se l'utente non ha accettato le analitiche, non registra nulla.
+    function trackEvent(name: string, params: Record<string, unknown> = {}) {
+      if (localStorage.getItem("revo-cookie-consent") !== "granted") return;
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      (window as any).dataLayer.push(["event", name, params]);
+    }
 
     function setNote(text: string, kind: "error" | "success") {
       note.textContent = text;
@@ -146,6 +159,12 @@ const isPaid = service.paymentType === "cart";
         paymentIntentId = String(data.clientSecret).split("_secret")[0];
         elements = stripe.elements({ clientSecret: data.clientSecret });
         elements.create("payment").mount("#payment-element");
+
+        trackEvent("begin_checkout", {
+          currency: "EUR",
+          value: servicePrice,
+          items: [{ item_name: serviceTitle, item_id: slug, price: servicePrice }],
+        });
       } catch (err) {
         setNote(err instanceof Error ? err.message : "Error al iniciar el pago.", "error");
         button.disabled = true;
@@ -177,6 +196,23 @@ const isPaid = service.paymentType === "cart";
       } catch {
         return file; // in caso di problemi, invia l'originale
       }
+    }
+
+    // I PDF (e altri documenti non-immagine) non vengono compressi: se troppo
+    // pesanti da soli possono far superare il limite di 4,5 MB di Vercel.
+    const MAX_DOCUMENT_BYTES = 8 * 1024 * 1024; // 8 MB
+
+    function findOversizedDocument(): string | null {
+      const fileInputs = form.querySelectorAll<HTMLInputElement>('input[type="file"]');
+      for (const input of fileInputs) {
+        const file = input.files?.[0];
+        if (!file || file.size === 0) continue;
+        if (file.type.startsWith("image/")) continue; // le foto vengono comunque compresse dopo
+        if (file.size > MAX_DOCUMENT_BYTES) {
+          return input.dataset.label || "archivo";
+        }
+      }
+      return null;
     }
 
     async function buildPayload(): Promise<FormData> {
@@ -225,6 +261,15 @@ const isPaid = service.paymentType === "cart";
         return;
       }
 
+      const oversizedLabel = findOversizedDocument();
+      if (oversizedLabel) {
+        setNote(
+          `El archivo "${oversizedLabel}" pesa demasiado (máx. 8 MB). Comprímelo o envíalo por email a revoesp@revosrl.com.`,
+          "error"
+        );
+        return;
+      }
+
       note.textContent = "";
       note.classList.remove("is-error", "is-success");
       button.disabled = true;
@@ -261,6 +306,13 @@ const isPaid = service.paymentType === "cart";
             resetButton();
             return;
           }
+
+          trackEvent("purchase", {
+            transaction_id: paymentIntentId,
+            currency: "EUR",
+            value: servicePrice,
+            items: [{ item_name: serviceTitle, item_id: slug, price: servicePrice }],
+          });
 
           await sendOrder(true);
         } else {
