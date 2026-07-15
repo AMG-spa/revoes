@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://revosrl.es/sitemap-index.xml
