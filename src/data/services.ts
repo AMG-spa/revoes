@@ -18,6 +18,6 @@ export const services = [
     title: "Activación de la garantía \noficial telemática",
     text: "Servicio remoto para verificar la documentación y revisar la instalación a distancia.",
     button: "Activación de la garantía oficial telemática",
-    href: "/servicios/instalacion-telematica",
+    href: "/servicios/activacion-garantia-telematica",
   },
 ];

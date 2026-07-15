@@ -10,4 +10,11 @@ export default defineConfig({
   // gira come funzione serverless per inviare l'email via Resend.
   adapter: vercel(),
   integrations: [sitemap()],
+  redirects: {
+    // Vecchio slug del servizio, rinominato in "activacion-garantia-telematica".
+    '/servicios/instalacion-telematica': {
+      status: 301,
+      destination: '/servicios/activacion-garantia-telematica',
+    },
+  },
 });

@@ -133,7 +133,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     ],
   },
   {
-    slug: "instalacion-telematica",
+    slug: "activacion-garantia-telematica",
     title: "Activación de la garantía oficial telemática",
     price: 49,
     paymentType: "cart",
