@@ -205,7 +205,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         label: "Factura de compra del producto",
         type: "file",
         required: true,
-        hint: "Sugerencia",
+        hint: "Sube la factura de compra en PDF o foto, con la fecha y el producto visibles.",
       },
       {
         name: "backPhoto",
@@ -228,14 +228,14 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         label: "Foto con encuadre general a campo abierto",
         type: "file",
         required: true,
-        hint: "Sugerencia",
+        hint: "Foto de toda la estufa junto con el espacio a su alrededor, no solo el aparato.",
       },
       {
         name: "installationSketch",
         label: "Croquis de la instalación (opcional)",
         type: "file",
         required: false,
-        hint: "Sugerencia",
+        hint: "Un dibujo simple con las medidas aproximadas de la instalación, no hace falta que sea preciso.",
       },
       {
         name: "installationDescription",
