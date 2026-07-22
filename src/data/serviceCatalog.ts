@@ -205,14 +205,14 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         label: "Factura de compra del producto",
         type: "file",
         required: true,
-        hint: "Sube la factura de compra en PDF o foto, con la fecha y el producto visibles.",
+        hint: "Sube la factura de compra en PDF o foto, donde se ve la fetcha de compra.",
       },
       {
         name: "backPhoto",
-        label: "Foto del retro",
+        label: "Foto de la parte trasera",
         type: "file",
         required: true,
-        hint: "Sugerencia",
+        hint: "Foto de la parte trasera de la estufa (parte trasera + conexión del conducto del humos).",
         hintImage: "/images/hints/retro.jpg",
       },
       {
