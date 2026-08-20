@@ -15,9 +15,21 @@ import Footer from "../components/Footer.astro";
         Hemos recibido tu solicitud. En breve recibirás la confirmación por email.
       </p>
 
+      <p class="reference" data-reference hidden></p>
+
       <a href="/" class="home-link">Volver al inicio</a>
     </section>
   </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    const el = document.querySelector<HTMLElement>("[data-reference]");
+    if (ref && el) {
+      el.textContent = `Número de referencia: ${ref}`;
+      el.hidden = false;
+    }
+  </script>
 
   <Footer />
 </BaseLayout>
@@ -48,6 +60,16 @@ import Footer from "../components/Footer.astro";
     margin: 0 0 18px;
     font-size: clamp(42px, 5vw, 62px);
     line-height: 1;
+  }
+
+  .reference {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    background: #fff3e9;
+    border: 1px solid var(--color-orange);
+    font-weight: 800;
   }
 
   .home-link {

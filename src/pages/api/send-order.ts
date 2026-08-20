@@ -25,6 +25,10 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Servicio no válido." }, 400);
   }
 
+  // Código corto para que el cliente lo indique en el concepto de la
+  // transferencia bancaria y podamos identificar el pago en el banco.
+  const reference = `REVO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+
   const rows: { label: string; value: string }[] = [];
   const attachments: { filename: string; content: string }[] = [];
 
@@ -74,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
   // Oggetto unico per richiesta -> Gmail non raggruppa più.
   const clientName = rows.find((r) => /nombre/i.test(r.label))?.value ?? "";
   const stamp = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
-  const subject = `Nueva solicitud · ${service.title}${clientName ? ` · ${clientName}` : ""} · ${stamp}`;
+  const subject = `[${reference}] Nueva solicitud · ${service.title}${clientName ? ` · ${clientName}` : ""} · ${stamp}`;
 
   const apiKey = import.meta.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -87,7 +91,7 @@ export const POST: APIRoute = async ({ request }) => {
       from: EMAIL_FROM,
       to: EMAIL_TO,
       subject,
-      html: buildHtml(service.title, stamp, rows),
+      html: buildHtml(service.title, stamp, reference, rows),
       attachments,
     });
     if (error) throw error;
@@ -96,14 +100,19 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "No se pudo enviar la solicitud. Inténtalo de nuevo." }, 500);
   }
 
-  return json({ ok: true }, 200);
+  return json({ ok: true, reference }, 200);
 };
 
 function esc(v: string) {
   return String(v).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!));
 }
 
-function buildHtml(title: string, stamp: string, rows: { label: string; value: string }[]) {
+function buildHtml(
+  title: string,
+  stamp: string,
+  reference: string,
+  rows: { label: string; value: string }[]
+) {
   const body = rows
     .map(
       (r) =>
@@ -117,6 +126,10 @@ function buildHtml(title: string, stamp: string, rows: { label: string; value: s
     <div style="font-family:Arial,sans-serif;color:#111;max-width:640px">
       <h2 style="margin:0 0 4px">${esc(title)}</h2>
       <p style="margin:0 0 16px;color:#666">Solicitud recibida el ${esc(stamp)}</p>
+      <div style="margin:0 0 20px;padding:12px 16px;border-radius:6px;background:#fff3e9;border:1px solid #EB6816">
+        <span style="font-size:13px;color:#666">Referencia (para identificar el pago si llega por transferencia)</span><br />
+        <strong style="font-size:20px;letter-spacing:0.5px">${esc(reference)}</strong>
+      </div>
       <table style="border-collapse:collapse;font-size:15px;width:100%">${body}</table>
     </div>
   `;

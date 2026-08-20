@@ -238,7 +238,8 @@ const isPaid = service.paymentType === "cart";
       if (paid) {
         // Il pagamento è già riuscito: in ogni caso porta il cliente alla
         // pagina di ringraziamento (anche se l'invio dati avesse un intoppo).
-        window.location.href = "/pedido-confirmado";
+        const ref = data.reference ? `?ref=${encodeURIComponent(data.reference)}` : "";
+        window.location.href = `/pedido-confirmado${ref}`;
         return;
       }
 
@@ -247,7 +248,10 @@ const isPaid = service.paymentType === "cart";
       }
 
       form.reset();
-      setNote("¡Solicitud enviada! Te contactaremos lo antes posible.", "success");
+      const refNote = data.reference
+        ? ` Tu número de referencia es ${data.reference} — indícalo si realizas el pago por transferencia bancaria.`
+        : "";
+      setNote(`¡Solicitud enviada! Te contactaremos lo antes posible.${refNote}`, "success");
       button.textContent = ctaLabel;
       button.disabled = false;
     }
@@ -280,13 +284,19 @@ const isPaid = service.paymentType === "cart";
 
           button.textContent = "Procesando pago…";
 
-          // Associa l'email del cliente al pagamento -> Stripe gli invia la ricevuta.
+          // Associa email e nome del cliente al pagamento -> Stripe invia la
+          // ricevuta e il nome compare nella Dashboard Stripe.
           const emailInput = form.querySelector('input[name="email"]') as HTMLInputElement | null;
+          const nameInput = form.querySelector('input[name="fullName"]') as HTMLInputElement | null;
           if (paymentIntentId && emailInput?.value) {
             await fetch("/api/attach-receipt-email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ paymentIntentId, email: emailInput.value }),
+              body: JSON.stringify({
+                paymentIntentId,
+                email: emailInput.value,
+                name: nameInput?.value || undefined,
+              }),
             }).catch(() => {}); // non bloccare il pagamento se fallisce
           }
 

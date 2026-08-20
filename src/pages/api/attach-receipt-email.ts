@@ -12,8 +12,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   let paymentIntentId: string;
   let email: string;
+  let name: string | undefined;
   try {
-    ({ paymentIntentId, email } = await request.json());
+    ({ paymentIntentId, email, name } = await request.json());
   } catch {
     return json({ error: "Solicitud no válida." }, 400);
   }
@@ -25,7 +26,12 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const stripe = new Stripe(secret);
     // Stripe invierà la ricevuta del pagamento a questo indirizzo (in live mode).
-    await stripe.paymentIntents.update(paymentIntentId, { receipt_email: email });
+    // Il nome del cliente va in description/metadata così è visibile nella
+    // Dashboard Stripe senza dover incrociare con la mail della richiesta.
+    await stripe.paymentIntents.update(paymentIntentId, {
+      receipt_email: email,
+      ...(name ? { description: name, metadata: { customer_name: name } } : {}),
+    });
     return json({ ok: true }, 200);
   } catch (err) {
     console.error("Receipt email error:", err);
