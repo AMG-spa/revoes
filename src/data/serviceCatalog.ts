@@ -1,5 +1,5 @@
 type InputFieldType = "text" | "email" | "date" | "tel" | "file";
-type FieldType = InputFieldType | "textarea" | "choice";
+type FieldType = InputFieldType | "textarea" | "choice" | "modelSelect";
 type PaymentType = "cart" | "email";
 
 export type ServiceField = {
@@ -9,7 +9,9 @@ export type ServiceField = {
   required: boolean;
   hint?: string;
   hintImage?: string;
-  options?: { value: string; label: string; price: number }[];
+  // internalLabel: usata solo nella mail interna, mai mostrata sul sito
+  // pubblico (es. per indicare il rivenditore senza scriverlo in chiaro sul sito).
+  options?: { value: string; label: string; price: number; internalLabel?: string }[];
 };
 
 export type ServiceCatalogItem = {
@@ -32,13 +34,26 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     ctaLabel: "Enviar solicitud",
     fields: [
       {
-        name: "productType",
-        label: "Tipo de producto",
-        type: "choice",
+        name: "model",
+        label: "Modelo",
+        type: "modelSelect",
         required: true,
         options: [
-          { value: "estufa", label: "Estufa", price: 60 },
-          { value: "termoestufa", label: "Termoestufa", price: 100 },
+          { value: "brico-mini6evo", label: "Mini6evo", internalLabel: "Brico Depot - Mini6evo", price: 45.41 },
+          { value: "brico-canadian6l", label: "Canadian6l", internalLabel: "Brico Depot - Canadian6l", price: 45.41 },
+          { value: "brico-next7", label: "Next7", internalLabel: "Brico Depot - Next7", price: 45.41 },
+          { value: "brico-next9", label: "Next9", internalLabel: "Brico Depot - Next9", price: 45.41 },
+          { value: "brico-egan9", label: "Egan9", internalLabel: "Brico Depot - Egan9", price: 45.41 },
+          { value: "brico-pasilloplus10c", label: "Pasilloplus10c", internalLabel: "Brico Depot - Pasilloplus10c", price: 45.41 },
+          { value: "brico-canadian12", label: "Canadian12", internalLabel: "Brico Depot - Canadian12", price: 45.41 },
+          { value: "brico-canadian10n", label: "Canadian10N", internalLabel: "Brico Depot - Canadian10N", price: 45.41 },
+          { value: "brico-steel12c", label: "Steel 12C", internalLabel: "Brico Depot - Steel 12C", price: 45.41 },
+          { value: "leroy-hella7", label: "Hella7", internalLabel: "Leroy Merlin - Hella7", price: 60 },
+          { value: "leroy-mannu9", label: "Mannu9", internalLabel: "Leroy Merlin - Mannu9", price: 60 },
+          { value: "leroy-krone5", label: "Krone 5", internalLabel: "Leroy Merlin - Krone 5", price: 60 },
+          { value: "leroy-krone7", label: "Krone7", internalLabel: "Leroy Merlin - Krone7", price: 60 },
+          { value: "leroy-legos", label: "legos", internalLabel: "Leroy Merlin - legos", price: 60 },
+          { value: "leroy-isabel", label: "Isabel", internalLabel: "Leroy Merlin - Isabel", price: 60 },
         ],
       },
       {
@@ -48,7 +63,6 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         required: true,
       },
       { name: "email", label: "Email", type: "email", required: true },
-      { name: "model", label: "Modelo", type: "text", required: true },
       {
         name: "purchaseDate",
         label: "Día de compra",

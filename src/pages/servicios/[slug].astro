@@ -76,6 +76,19 @@ const isPaid = service.paymentType === "cart";
                   </label>
                 ))}
               </div>
+            ) : field.type === "modelSelect" ? (
+              <div class="model-select">
+                <select name={field.name} required={field.required} data-model-select>
+                  <option value="" selected disabled>Selecciona tu modelo</option>
+                  {field.options?.map((opt) => (
+                    <option value={opt.value} data-price={opt.price}>{opt.label}</option>
+                  ))}
+                </select>
+                <p class="model-price">
+                  <span data-model-price>{(0).toLocaleString("es-ES", { style: "currency", currency: "EUR" })}</span>
+                  <em> + IVA + DEPLACIAMENTO </em>
+                </p>
+              </div>
             ) : field.type === "textarea" ? (
               <textarea name={field.name} required={field.required}></textarea>
             ) : (
@@ -255,6 +268,18 @@ const isPaid = service.paymentType === "cart";
       button.textContent = ctaLabel;
       button.disabled = false;
     }
+
+    // Aggiorna il prezzo mostrato in base al modello scelto (0 € finché nessuno è selezionato).
+    form.querySelectorAll<HTMLSelectElement>("[data-model-select]").forEach((select) => {
+      const priceEl = select.parentElement?.querySelector<HTMLElement>("[data-model-price]");
+      select.addEventListener("change", () => {
+        const opt = select.selectedOptions[0];
+        const price = opt ? Number(opt.dataset.price || 0) : 0;
+        if (priceEl) {
+          priceEl.textContent = price.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+        }
+      });
+    });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -446,13 +471,15 @@ const isPaid = service.paymentType === "cart";
   }
 
   input,
-  textarea {
+  textarea,
+  select {
     width: 100%;
     min-height: 48px;
     border: 1px solid #cfcfcf;
     border-radius: 5px;
     padding: 10px 12px;
     font: inherit;
+    background: #fff;
   }
 
   textarea {
@@ -462,7 +489,8 @@ const isPaid = service.paymentType === "cart";
 
   .field:has(textarea),
   .field:has(input[type="file"]),
-  .field:has(.choice-cards) {
+  .field:has(.choice-cards),
+  .field:has(.model-select) {
     grid-column: 1 / -1;
   }
 
@@ -470,6 +498,22 @@ const isPaid = service.paymentType === "cart";
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
+  }
+
+  .model-price {
+    margin: 8px 0 0;
+    font-size: 15px;
+  }
+
+  .model-price [data-model-price] {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--color-orange);
+  }
+
+  .model-price em {
+    font-style: normal;
+    color: #666;
   }
 
   .choice-card {

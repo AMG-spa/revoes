@@ -54,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
       const buf = Buffer.from(await file.arrayBuffer());
       attachments.push({ filename: file.name, content: buf.toString("base64") });
       rows.push({ label: field.label, value: `📎 ${file.name}` });
-    } else if (field.type === "choice") {
+    } else if (field.type === "choice" || field.type === "modelSelect") {
       const value = typeof raw === "string" ? raw.trim() : "";
       const option = field.options?.find((o) => o.value === value);
       if (!option && field.required) {
@@ -63,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
       rows.push({
         label: field.label,
         value: option
-          ? `${option.label} (${option.price.toLocaleString("es-ES", { style: "currency", currency: "EUR" })} orientativo)`
+          ? `${option.internalLabel ?? option.label} (${option.price.toLocaleString("es-ES", { style: "currency", currency: "EUR" })} + IVA + DEPLACIAMENTO)`
           : "—",
       });
     } else {
