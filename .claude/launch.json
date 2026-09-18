@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev", "--prefix", "/Users/siti.web/revo es"],
       "port": 4321,
       "autoPort": true
+    },
+    {
+      "name": "geo-map-tool",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/siti.web/revo es/geo-map-tool"],
+      "port": 5173,
+      "autoPort": true
     }
   ]
 }
