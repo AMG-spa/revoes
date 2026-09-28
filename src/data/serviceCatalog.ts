@@ -130,6 +130,12 @@ export const serviceCatalog: ServiceCatalogItem[] = [
         type: "text",
         required: true,
       },
+      {
+        name: "nif",
+        label: "NIF (DNI/NIE)",
+        type: "text",
+        required: true,
+      },
       { name: "email", label: "Email", type: "email", required: true },
       {
         name: "purchaseDate",
@@ -175,6 +181,12 @@ export const serviceCatalog: ServiceCatalogItem[] = [
       {
         name: "fullName",
         label: "Nombre y apellidos",
+        type: "text",
+        required: true,
+      },
+      {
+        name: "nif",
+        label: "NIF (DNI/NIE)",
         type: "text",
         required: true,
       },
@@ -224,6 +236,12 @@ export const serviceCatalog: ServiceCatalogItem[] = [
       {
         name: "fullName",
         label: "Nombre y apellidos",
+        type: "text",
+        required: true,
+      },
+      {
+        name: "nif",
+        label: "NIF (DNI/NIE)",
         type: "text",
         required: true,
       },
