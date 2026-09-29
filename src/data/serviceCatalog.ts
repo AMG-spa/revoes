@@ -237,7 +237,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     paymentType: "cart",
     ctaLabel: "Pagar 49 € (IVA incluida)",
     topNote:
-      "El servicio de activación de la garantía telemática es necesario para verificar que el producto es instalado de forma segura y que respete la normativa RITE vigente en España. Este servicio es totalmente telemático y es verificado por un equipo técnico especializado. En caso de activación con fallo, el servicio no es reembolsable.",
+      "El servicio de activación de la garantía telemática es necesario para verificar que el producto es instalado de forma segura y que respete la normativa RITE vigente en España. Este servicio es totalmente telemático y es verificato por un equipo técnico especializado. En caso de que no sea posible la activación (instalación no conforme a la normativa/insegura), el servicio no es reembolsable.",
     bottomNote:
       "Recomendamos el ajuste del equipo, de forma presencial, por un SAT autorizado Revo, para un funcionamiento óptimo. Este servicio no está incluido en el pago por la activación de la garantía telemática oficial y es a cargo del usuario final en caso de que sea necesario.",
     fields: [
