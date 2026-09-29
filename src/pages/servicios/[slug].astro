@@ -27,6 +27,8 @@ const isPaid = service.paymentType === "cart";
         <p>Servicio REVO</p>
         <h1>{service.title}</h1>
 
+        {service.topNote && <p class="top-note">* {service.topNote}</p>}
+
         {service.paymentType === "cart" && (
           <strong>
             {service.price.toLocaleString("es-ES", {
@@ -102,6 +104,8 @@ const isPaid = service.paymentType === "cart";
             )}
           </label>
         ))}
+
+        {service.bottomNote && <p class="bottom-note">{service.bottomNote}</p>}
 
         {isPaid && (
           <div class="payment-block">
@@ -405,6 +409,24 @@ const isPaid = service.paymentType === "cart";
     display: block;
     margin-top: 16px;
     font-size: 24px;
+  }
+
+  .top-note {
+    margin: 10px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #777;
+  }
+
+  .bottom-note {
+    grid-column: 1 / -1;
+    margin: 4px 0 0;
+    padding: 14px 16px;
+    border-radius: 6px;
+    background: #f7f7f7;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #555;
   }
 
   .service-form {
