@@ -33,7 +33,10 @@ export const POST: APIRoute = async ({ request }) => {
       amount,
       currency: "eur",
       description: service.title,
-      automatic_payment_methods: { enabled: true },
+      // Solo carta (Apple Pay e Google Pay inclusi): la mail d'ordine parte dal
+      // browser subito dopo il pagamento, quindi metodi asincroni come MB WAY
+      // (approvazione nell'app del telefono) incassano senza far arrivare i dati.
+      payment_method_types: ["card"],
       metadata: { slug: service.slug },
     });
     return json({ clientSecret: intent.client_secret }, 200);
